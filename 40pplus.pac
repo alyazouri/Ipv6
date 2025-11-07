@@ -1,6 +1,6 @@
 function FindProxyForURL(url, host) {
   // ==============================
-  // STRICT_JO_TUNED — Bias قوي بدون Blackhole
+  // STRICT_JO_TUNED_V2 — أقوى تحيز للأردن بدون تغيير بروكسي/نطاقاتك
   // ==============================
   var JO_PROXY_HOST = "127.0.0.1";
 
@@ -10,17 +10,17 @@ function FindProxyForURL(url, host) {
   var PORT_UPDATES        = 8080;
   var PORT_CDN            = 443;
 
-  // Sticky أطول لفئات اللعب حتى يثبت الريجن
-  var STICKY_MINUTES_PLAY = 30;
+  // Sticky أطول لمسارات اللعب
+  var STICKY_MINUTES_PLAY = 60; // كان 10–30، خلّيناه 60 لتثبيت الريجن
   var STICKY_MINUTES_MISC = 10;
 
-  // تأخير متكيّف (بدل البلاك-هول)
-  var LATENCY_BASE_MS = 150;   // ابدأ بـ150ms
-  var LATENCY_STEP_MS = 70;    // يزيد مع تكرار نفس الـhost
-  var LATENCY_MAX_MS  = 450;   // سقف آمن
+  // تأخير متكيّف أقوى لغير الأردن داخل اللعب فقط
+  var LATENCY_BASE_MS = 220;  // ابدأ أعلى (جرّب 180–260)
+  var LATENCY_STEP_MS = 80;   // يزيد مع تكرار نفس الـhost
+  var LATENCY_MAX_MS  = 700;  // سقف أقوى
 
   // ==============================
-  // IPv6 الأردن — نفس قائمتك
+  // IPv6 الأردن — كما هي (من نصّك)
   // ==============================
   var JO_V6_PREFIXES = [
     "2001:32c0:300::/40","2001:32c0:400::/39","2001:32c0:b00::/40","2001:32c0:c00::/38",
@@ -39,22 +39,38 @@ function FindProxyForURL(url, host) {
   ];
 
   // ==============================
-  // PUBG DOMAINS & URL PATTERNS — نفس سكربتك
+  // PUBG DOMAINS & URL PATTERNS — مضاف لها Endpoints إضافية شائعة
   // ==============================
   var PUBG_DOMAINS = {
-    LOBBY:          ["*.pubgmobile.com","*.pubgmobile.net","*.proximabeta.com","*.igamecj.com"],
-    MATCH:          ["*.gcloud.qq.com","gpubgm.com","*.igamecj.com","*.proximabeta.com"],
-    RECRUIT_SEARCH: ["match.igamecj.com","match.proximabeta.com","teamfinder.igamecj.com","teamfinder.proximabeta.com","clan.igamecj.com"],
-    UPDATES:        ["cdn.pubgmobile.com","updates.pubgmobile.com","patch.igamecj.com","hotfix.proximabeta.com","dlied1.qq.com","dlied2.qq.com"],
-    CDNs:           ["cdn.igamecj.com","cdn.proximabeta.com","cdn.tencentgames.com","*.qcloudcdn.com","*.cloudfront.net","*.edgesuite.net"]
+    LOBBY: [
+      "*.pubgmobile.com","*.pubgmobile.net","*.proximabeta.com","*.igamecj.com",
+      "gateway.igamecj.com","gateway.proximabeta.com","presence.igamecj.com","presence.proximabeta.com",
+      "friends.igamecj.com","friends.proximabeta.com","status.igamecj.com","status.proximabeta.com"
+    ],
+    MATCH: [
+      "*.gcloud.qq.com","gpubgm.com","*.igamecj.com","*.proximabeta.com",
+      "mms.igamecj.com","mms.proximabeta.com","match.igamecj.com","match.proximabeta.com",
+      "msdk.qq.com","qos.igamecj.com","qos.proximabeta.com"
+    ],
+    RECRUIT_SEARCH: [
+      "match.igamecj.com","match.proximabeta.com",
+      "teamfinder.igamecj.com","teamfinder.proximabeta.com",
+      "clan.igamecj.com","clan.proximabeta.com",
+      "social.igamecj.com","social.proximabeta.com",
+      "party.igamecj.com","party.proximabeta.com"
+    ],
+    UPDATES: ["cdn.pubgmobile.com","updates.pubgmobile.com","patch.igamecj.com","hotfix.proximabeta.com","dlied1.qq.com","dlied2.qq.com"],
+    CDNs:    ["cdn.igamecj.com","cdn.proximabeta.com","cdn.tencentgames.com","*.qcloudcdn.com","*.cloudfront.net","*.edgesuite.net"]
   };
+
   var URL_PATTERNS = {
-    LOBBY:          ["*/account/login*","*/client/version*","*/status/heartbeat*","*/presence/*","*/friends/*"],
-    MATCH:          ["*/matchmaking/*","*/mms/*","*/game/start*","*/game/join*","*/report/battle*"],
-    RECRUIT_SEARCH: ["*/teamfinder/*","*/clan/*","*/social/*","*/search/*","*/recruit/*"],
+    LOBBY:          ["*/account/login*","*/client/version*","*/status/heartbeat*","*/presence/*","*/friends/*","*/gateway/*"],
+    MATCH:          ["*/matchmaking/*","*/mms/*","*/game/start*","*/game/join*","*/report/battle*","*/qos/*"],
+    RECRUIT_SEARCH: ["*/teamfinder/*","*/clan/*","*/social/*","*/search/*","*/recruit/*","*/party/*"],
     UPDATES:        ["*/patch*","*/update*","*/hotfix*","*/download*","*/assets/*","*/assetbundle*","*/obb*"],
     CDNs:           ["*/cdn/*","*/image/*","*/media/*","*/video/*","*/res/*","*/pkg/*"]
   };
+
   var YOUTUBE_DOMAINS = ["youtube.com","youtu.be","googlevideo.com","ytimg.com","youtube-nocookie.com"];
 
   // ==============================
@@ -109,9 +125,7 @@ function FindProxyForURL(url, host) {
     if (nowMin()-e.t > ttl) return null;
     return e.v;
   }
-  function stickyPut(h,val,isPlay){
-    _stickyCache[h] = { t: nowMin(), v: val, play: !!isPlay };
-  }
+  function stickyPut(h,val,isPlay){ _stickyCache[h] = { t: nowMin(), v: val, play: !!isPlay }; }
 
   function adaptiveDelayNonJordan(isJo, h, isPlay){
     if (isJo || !isPlay) return;
@@ -136,7 +150,7 @@ function FindProxyForURL(url, host) {
   // DIRECT فوري لأي وجهة IPv6 أردنية
   if (joV6) { stickyPut(host,"DIRECT", inCategory("LOBBY")||inCategory("MATCH")||inCategory("RECRUIT_SEARCH")); return "DIRECT"; }
 
-  // فئات اللعب — تأخير متكيّف ثم نطبّق قرارك الأصلي (بروكسي الفئة)
+  // فئات اللعب — تأخير متكيّف ثم قرارك الأصلي (بروكسي الفئة)
   var isPlay = inCategory("LOBBY") || inCategory("MATCH") || inCategory("RECRUIT_SEARCH");
   if (isPlay) {
     adaptiveDelayNonJordan(joV6, host, true);
