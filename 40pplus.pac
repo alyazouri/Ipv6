@@ -1,22 +1,23 @@
 function FindProxyForURL(url, host) {
   // ==============================
-  // STRICT_JO_LOCK_TEAM — شدّة أعلى لتجعل كل الفريق أردني قدر الإمكان
-  // (مبني على سكربتك STRICT_JO_PLUS بدون تغيير البورتات/النطاقات)
+  // STRICT_JO_TUNED — Bias قوي بدون Blackhole
   // ==============================
   var JO_PROXY_HOST = "127.0.0.1";
 
-  var PORT_LOBBY          = 10010;  // لوجي
-  var PORT_MATCH          = 20001;  // مباراة
-  var PORT_RECRUIT_SEARCH = 12000;  // تجنيد/بحث
-  var PORT_UPDATES        = 8080;   // تحديثات
-  var PORT_CDN            = 443;    // CDN
+  var PORT_LOBBY          = 10010;
+  var PORT_MATCH          = 20001;
+  var PORT_RECRUIT_SEARCH = 12000;
+  var PORT_UPDATES        = 8080;
+  var PORT_CDN            = 443;
 
-  var STICKY_MINUTES = 10;
+  // Sticky أطول لفئات اللعب حتى يثبت الريجن
+  var STICKY_MINUTES_PLAY = 30;
+  var STICKY_MINUTES_MISC = 10;
 
-  // قفل التجنيد/الانضمام: عدد محاولات البلاك-هول القصوى، وتأخير بسيط قبلها
-  var TEAMLOCK_RETRIES   = 2;   // جرّب ارفعها إلى 3 لو بدك تشدد أكثر
-  var TEAMLOCK_DELAY_MS  = 300; // 200–400 ms مناسب
-  var TEAMLOCK_HOST_TTLM = 5;   // دقائق نحفظ فيها حالة القفل لهذا الـhost
+  // تأخير متكيّف (بدل البلاك-هول)
+  var LATENCY_BASE_MS = 150;   // ابدأ بـ150ms
+  var LATENCY_STEP_MS = 70;    // يزيد مع تكرار نفس الـhost
+  var LATENCY_MAX_MS  = 450;   // سقف آمن
 
   // ==============================
   // IPv6 الأردن — نفس قائمتك
@@ -38,7 +39,7 @@ function FindProxyForURL(url, host) {
   ];
 
   // ==============================
-  // PUBG DOMAINS & URL PATTERNS
+  // PUBG DOMAINS & URL PATTERNS — نفس سكربتك
   // ==============================
   var PUBG_DOMAINS = {
     LOBBY:          ["*.pubgmobile.com","*.pubgmobile.net","*.proximabeta.com","*.igamecj.com"],
@@ -54,14 +55,12 @@ function FindProxyForURL(url, host) {
     UPDATES:        ["*/patch*","*/update*","*/hotfix*","*/download*","*/assets/*","*/assetbundle*","*/obb*"],
     CDNs:           ["*/cdn/*","*/image/*","*/media/*","*/video/*","*/res/*","*/pkg/*"]
   };
-
   var YOUTUBE_DOMAINS = ["youtube.com","youtu.be","googlevideo.com","ytimg.com","youtube-nocookie.com"];
 
   // ==============================
   // Helpers
   // ==============================
   function proxyLine(port){ return "SOCKS5 " + JO_PROXY_HOST + ":" + port; }
-  function blackhole(){ return "PROXY 0.0.0.0:0"; } // إسقاط الاتصال لإجبار إعادة المحاولة
   function matchDomain(h,list){
     for (var i=0;i<list.length;i++){
       var pat=list[i];
@@ -76,65 +75,56 @@ function FindProxyForURL(url, host) {
   function expandIPv6(addr){
     if(!addr) return "";
     if(addr.indexOf("::")>=0){
-      var sides=addr.split("::");
-      var left=sides[0]?sides[0].split(":"):[];
-      var right=sides[1]?sides[1].split(":"):[];
-      var missing=8-(left.length+right.length);
-      var mid=[]; for(var i=0;i<missing;i++) mid.push("0");
-      var full=left.concat(mid,right);
-      for(var j=0;j<full.length;j++) full[j]=("0000"+(full[j]||"0")).slice(-4);
+      var s=addr.split("::"), left=s[0]?s[0].split(":"):[], right=s[1]?s[1].split(":"):[];
+      var m=8-(left.length+right.length), mid=[]; for(var i=0;i<m;i++) mid.push("0");
+      var full=left.concat(mid,right); for(var j=0;j<full.length;j++) full[j]=("0000"+(full[j]||"0")).slice(-4);
       return full.join(":");
     }
     return addr.split(":").map(function(x){return("0000"+x).slice(-4);}).join(":");
   }
   function ipv6Hex(ip){ return expandIPv6(ip).replace(/:/g,"").toLowerCase(); }
   function inCidrV6(ip,cidr){
-    var parts=cidr.split("/");
-    var pref=parts[0]; var bits=parts.length>1?parseInt(parts[1],10):128;
-    var ipHex=ipv6Hex(ip); var prefHex=ipv6Hex(pref);
-    var nibbles=Math.floor(bits/4);
-    if(ipHex.substring(0,nibbles)!==prefHex.substring(0,nibbles)) return false;
+    var p=cidr.split("/"), pref=p[0], bits=p.length>1?parseInt(p[1],10):128;
+    var ipHex=ipv6Hex(ip), prefHex=ipv6Hex(pref), n=Math.floor(bits/4);
+    if(ipHex.substring(0,n)!==prefHex.substring(0,n)) return false;
     if(bits%4===0) return true;
-    var maskBits=bits%4; var mask=(0xF<<(4-maskBits))&0xF;
-    var ipNib=parseInt(ipHex.charAt(nibbles),16)&mask;
-    var pfNib=parseInt(prefHex.charAt(nibbles),16)&mask;
-    return ipNib===pfNib;
+    var mb=bits%4, mask=(0xF<<(4-mb))&0xF;
+    var inib=parseInt(ipHex.charAt(n),16)&mask, pnib=parseInt(prefHex.charAt(n),16)&mask;
+    return inib===pnib;
   }
   function isJordanIPv6(ip){
     if(!ip || ip.indexOf(":")<0) return false;
-    for (var i=0;i<JO_V6_PREFIXES.length;i++){
-      if (inCidrV6(ip, JO_V6_PREFIXES[i])) return true;
-    }
+    for (var i=0;i<JO_V6_PREFIXES.length;i++){ if (inCidrV6(ip, JO_V6_PREFIXES[i])) return true; }
     return false;
   }
 
-  // Sticky + TeamLock state
-  if (typeof _stickyCache  === "undefined") { var _stickyCache  = {}; }
-  if (typeof _teamLockHits === "undefined") { var _teamLockHits = {}; }
-  if (typeof _teamLockTime === "undefined") { var _teamLockTime = {}; }
+  // Sticky/Hit counters
+  if (typeof _stickyCache === "undefined") { var _stickyCache = {}; }
+  if (typeof _hostHits    === "undefined") { var _hostHits    = {}; }
 
   function nowMin(){ return Math.floor((new Date()).getTime() / 60000); }
-  function sleepMs(ms){ var s=new Date().getTime(); while (new Date().getTime()-s<ms){} }
-
   function stickyGet(h){
     var e=_stickyCache[h]; if(!e) return null;
-    if (nowMin()-e.t > STICKY_MINUTES){ return null; }
+    var ttl = e.play ? STICKY_MINUTES_PLAY : STICKY_MINUTES_MISC;
+    if (nowMin()-e.t > ttl) return null;
     return e.v;
   }
-  function stickyPut(h,val){ _stickyCache[h] = {t: nowMin(), v: val}; }
-
-  function teamLockShouldBlackhole(h){
-    // داخل نافذة TEAMLOCK_HOST_TTLM، إن كانت المحاولات أقل من TEAMLOCK_RETRIES → بلّك
-    var t=_teamLockTime[h]||0;
-    if (nowMin()-t > TEAMLOCK_HOST_TTLM){ _teamLockHits[h]=0; _teamLockTime[h]=nowMin(); }
-    var hits=_teamLockHits[h]||0;
-    if (hits < TEAMLOCK_RETRIES){ _teamLockHits[h]=hits+1; return true; }
-    return false;
+  function stickyPut(h,val,isPlay){
+    _stickyCache[h] = { t: nowMin(), v: val, play: !!isPlay };
   }
 
-  // ================
-  // Quick outs
-  // ================
+  function adaptiveDelayNonJordan(isJo, h, isPlay){
+    if (isJo || !isPlay) return;
+    var hits = (_hostHits[h]||0);
+    var delay = LATENCY_BASE_MS + hits*LATENCY_STEP_MS;
+    if (delay > LATENCY_MAX_MS) delay = LATENCY_MAX_MS;
+    var s = new Date().getTime(); while (new Date().getTime()-s < delay) {}
+    _hostHits[h] = hits + 1;
+  }
+
+  // ==============================
+  // Fast exits
+  // ==============================
   if (matchDomain(host, YOUTUBE_DOMAINS)) return "DIRECT";
 
   var destIP = dnsResolve(host);
@@ -143,37 +133,21 @@ function FindProxyForURL(url, host) {
   var cached = stickyGet(host);
   if (cached) return cached;
 
-  // ================
-  // قواعد أساسية (كما في STRICT_JO_PLUS)
-  // ================
-  function decideForCategory(defaultPort){
-    if (joV6) { stickyPut(host,"DIRECT"); return "DIRECT"; }
-    var line = proxyLine(defaultPort); stickyPut(host,line); return line;
+  // DIRECT فوري لأي وجهة IPv6 أردنية
+  if (joV6) { stickyPut(host,"DIRECT", inCategory("LOBBY")||inCategory("MATCH")||inCategory("RECRUIT_SEARCH")); return "DIRECT"; }
+
+  // فئات اللعب — تأخير متكيّف ثم نطبّق قرارك الأصلي (بروكسي الفئة)
+  var isPlay = inCategory("LOBBY") || inCategory("MATCH") || inCategory("RECRUIT_SEARCH");
+  if (isPlay) {
+    adaptiveDelayNonJordan(joV6, host, true);
+    if (inCategory("MATCH"))          { var r1 = proxyLine(PORT_MATCH);          stickyPut(host,r1,true); return r1; }
+    if (inCategory("RECRUIT_SEARCH")) { var r2 = proxyLine(PORT_RECRUIT_SEARCH); stickyPut(host,r2,true); return r2; }
+    if (inCategory("LOBBY"))          { var r3 = proxyLine(PORT_LOBBY);          stickyPut(host,r3,true); return r3; }
   }
 
-  // ====== قفل التجنيد والإنضمام ======
-  // لو الوجهة غير أردنية: نؤخّر قليلًا، ثم نُسقط أول محاولتين لإجبار اللعبة تعيد الاستكشاف باتجاه عقد أردنية
-  var isJoinOrStart = shExpMatch(url, "*/game/join*") || shExpMatch(url, "*/game/start*");
+  // Updates/CDN — كما هي
+  if (inCategory("UPDATES") || inCategory("CDNs")) { stickyPut(host,"DIRECT",false); return "DIRECT"; }
 
-  if (inCategory("RECRUIT_SEARCH") || (inCategory("MATCH") && isJoinOrStart)) {
-    if (!joV6) {
-      sleepMs(TEAMLOCK_DELAY_MS);
-      if (teamLockShouldBlackhole(host)) { return blackhole(); }
-    }
-    if (inCategory("RECRUIT_SEARCH")) return decideForCategory(PORT_RECRUIT_SEARCH);
-    // join/start داخل MATCH
-    return decideForCategory(PORT_MATCH);
-  }
-
-  // فئات اللعب الأخرى
-  if (inCategory("MATCH")) return decideForCategory(PORT_MATCH);
-  if (inCategory("LOBBY")) return decideForCategory(PORT_LOBBY);
-
-  // التحديثات و CDN — عبر البروكسي إلا إذا الوجهة أردنية IPv6
-  if (inCategory("UPDATES")) { if (joV6) { stickyPut(host,"DIRECT"); return "DIRECT"; } var u=proxyLine(PORT_UPDATES); stickyPut(host,u); return u; }
-  if (inCategory("CDNs"))   { if (joV6) { stickyPut(host,"DIRECT"); return "DIRECT"; } var c=proxyLine(PORT_CDN);     stickyPut(host,c); return c; }
-
-  // أي شيء آخر
-  if (joV6) { stickyPut(host,"DIRECT"); return "DIRECT"; }
-  var fb = proxyLine(PORT_LOBBY); stickyPut(host, fb); return fb;
+  // افتراضي
+  var fb = proxyLine(PORT_LOBBY); stickyPut(host, fb, false); return fb;
 }
