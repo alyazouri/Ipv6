@@ -18,6 +18,7 @@ function FindProxyForURL(url, host) {
   // IPv6 الأردن — (قوائمك الحالية)
   // ==============================
   var JO_V6_PREFIXES = [
+    "2a00:18dc::/30",
     "2001:32c1::/32"
   ];
 
