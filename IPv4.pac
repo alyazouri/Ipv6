@@ -1,102 +1,201 @@
 function FindProxyForURL(url, host) {
-  // STRICT_JO_ONLY for lobby/recruit/match
+  // STRICT_JO_ROUTERS (Geo) — live-built
   var JO_PROXY_HOST = "127.0.0.1";
-  var PORT_LOBBY = 10012;
+  var PORT_LOBBY = 10010;
   var PORT_MATCH = 20001;
   var PORT_RECRUIT_SEARCH = 12000;
   var PORT_UPDATES = 8080;
   var PORT_CDN = 443;
   var STICKY_MINUTES = 10;
 
-  // نفس النطاقات التي طلبتها (بدون تفريع /24)
   var JO_V4_PREFIXES = [
-    "5.45.128.0/20","37.17.192.0/20","37.123.64.0/19","37.202.64.0/18","37.220.112.0/20",
-    "46.23.112.0/23","46.23.115.0/24","46.32.96.0/24","46.32.98.0/24","46.32.100.0/23",
-    "46.32.121.0/24","46.32.122.0/24","46.185.128.0/17","46.248.192.0/19","62.72.160.0/20",
-    "77.245.2.0/24","77.245.4.0/22","77.245.13.0/24","77.245.14.0/24","79.134.128.0/20",
-    "79.134.144.0/21","79.173.192.0/18","80.90.160.0/24","80.90.162.0/24","80.90.164.0/23",
-    "80.90.167.0/24","80.90.168.0/22","80.90.172.0/23","81.28.112.0/21","81.28.120.0/23",
-    "81.28.125.0/24","82.212.64.0/24","82.212.66.0/23","82.212.81.0/24","82.212.82.0/23",
-    "82.212.100.0/23","82.212.114.0/24","82.212.116.0/24","82.212.124.0/24","82.212.127.0/24",
-    "84.18.32.0/19","84.18.66.0/23","84.18.68.0/22","84.18.72.0/21","84.18.80.0/20",
-    "86.108.0.0/23","86.108.5.0/24","86.108.24.0/23","86.108.55.0/24","86.108.56.0/24",
-    "86.108.87.0/24","86.108.88.0/24","86.108.122.0/23","86.108.124.0/24","91.186.224.0/19",
-    "92.241.32.0/19","92.253.0.0/17","94.142.35.0/24","94.142.38.0/24","94.142.45.0/24",
-    "94.142.46.0/23","94.142.58.0/23","94.142.61.0/24","94.249.0.0/19","94.249.32.0/20",
-    "94.249.48.0/21","94.249.56.0/22","94.249.64.0/18","95.141.208.0/21","95.172.192.0/20",
-    "109.107.224.0/21","109.107.248.0/21","109.237.192.0/20","149.200.128.0/17","176.28.128.0/17",
-    "176.29.0.0/16","176.57.0.0/19","176.57.51.0/24","176.57.53.0/24","178.77.128.0/18",
-    "178.238.176.0/21","188.123.161.0/24","188.123.163.0/24","188.123.165.0/24","188.123.184.0/23",
-    "188.123.187.0/24","188.247.64.0/23","188.247.66.0/24","188.247.70.0/24","193.188.64.0/23",
-    "193.188.67.0/24","193.188.68.0/24","193.188.92.0/23","194.165.128.0/23","194.165.132.0/24",
-    "194.165.153.0/24","194.165.154.0/24","212.34.1.0/24","212.34.3.0/24","212.34.4.0/24",
-    "212.34.25.0/24","212.34.26.0/24","212.35.64.0/19","212.118.0.0/21","212.118.16.0/20",
-    "213.139.32.0/19","213.186.160.0/19","217.23.32.0/20","217.29.240.0/20","217.144.0.0/22",
-    "217.144.4.0/23","217.144.6.0/24"
+    "37.17.200.2/32",
+    "37.202.65.224/32",
+    "37.202.78.9/32",
+    "37.202.79.128/32",
+    "37.202.84.30/32",
+    "37.202.84.62/32",
+    "37.202.87.150/32",
+    "37.202.87.253/32",
+    "37.202.94.16/32",
+    "37.202.96.190/32",
+    "37.202.100.128/32",
+    "37.202.102.252/32",
+    "37.202.111.30/32",
+    "37.202.126.62/32",
+    "37.220.120.16/32",
+    "37.220.120.33/32",
+    "37.220.120.150/32",
+    "37.220.120.250/32",
+    "37.220.120.251/32",
+    "37.220.121.1/32",
+    "37.220.121.2/32",
+    "37.220.121.14/32",
+    "37.220.121.195/32",
+    "37.220.123.33/32",
+    "37.220.123.224/32",
+    "46.23.112.6/32",
+    "46.23.112.65/32",
+    "46.23.112.194/32",
+    "46.23.112.224/32",
+    "46.23.115.9/32",
+    "46.23.122.194/32",
+    "46.23.123.195/32",
+    "46.32.96.190/32",
+    "46.32.97.225/32",
+    "46.32.97.250/32",
+    "46.32.98.2/32",
+    "46.32.98.10/32",
+    "46.32.98.99/32",
+    "46.32.98.226/32",
+    "46.32.99.226/32",
+    "46.32.100.9/32",
+    "46.32.100.31/32",
+    "46.32.100.63/32",
+    "46.32.100.132/32",
+    "46.32.100.190/32",
+    "46.32.100.224/32",
+    "46.32.100.225/32",
+    "46.32.100.251/32",
+    "46.32.101.15/32",
+    "46.32.101.16/32",
+    "46.32.101.62/32",
+    "46.32.102.1/32",
+    "46.32.102.4/32",
+    "46.32.102.10/32",
+    "46.32.102.128/32",
+    "46.32.102.150/32",
+    "46.32.102.195/32",
+    "46.32.102.225/32",
+    "46.32.104.66/32",
+    "46.32.104.99/32",
+    "46.32.104.100/32",
+    "46.32.104.101/32",
+    "46.32.104.130/32",
+    "46.32.104.132/32",
+    "46.32.104.150/32",
+    "46.32.104.194/32",
+    "46.32.109.1/32",
+    "46.32.109.31/32",
+    "46.32.112.225/32",
+    "46.32.112.226/32",
+    "46.32.113.14/32",
+    "46.32.113.64/32",
+    "46.32.113.127/32",
+    "46.32.113.129/32",
+    "46.32.113.194/32",
+    "46.32.114.5/32",
+    "46.32.114.10/32",
+    "46.32.114.33/32",
+    "46.32.114.62/32",
+    "46.32.114.194/32",
+    "46.32.114.253/32",
+    "46.32.115.33/32",
+    "46.32.115.101/32",
+    "46.32.115.190/32",
+    "46.32.115.194/32",
+    "46.32.115.224/32",
+    "46.32.115.225/32",
+    "46.32.115.253/32",
+    "46.32.119.10/32",
+    "46.32.120.14/32",
+    "46.32.120.15/32",
+    "46.32.120.16/32",
+    "46.32.120.62/32",
+    "46.185.128.14/32",
+    "46.185.128.16/32",
+    "46.185.128.63/32",
+    "46.185.128.130/32",
+    "46.185.128.192/32",
+    "46.185.128.250/32",
+    "46.185.129.9/32",
+    "46.185.129.66/32",
+    "46.185.129.130/32",
+    "46.185.129.190/32",
+    "46.185.130.150/32",
+    "46.185.131.9/32",
+    "46.185.131.10/32",
+    "46.185.131.33/32",
+    "46.185.131.101/32",
+    "46.185.131.190/32",
+    "46.185.131.195/32",
+    "46.185.131.251/32",
+    "46.185.135.10/32",
+    "46.185.135.99/32",
+    "46.185.138.4/32",
+    "46.185.138.9/32",
+    "46.185.138.14/32",
+    "46.185.138.99/32",
+    "46.185.138.100/32",
+    "46.185.139.127/32",
+    "46.185.139.129/32",
+    "46.185.139.130/32",
+    "46.185.139.160/32",
+    "46.185.139.253/32",
+    "46.185.143.15/32",
+    "46.185.143.100/32",
+    "46.185.143.126/32",
+    "46.185.143.195/32",
+    "46.185.143.252/32",
+    "46.185.145.195/32",
+    "46.185.161.5/32",
+    "46.185.161.6/32",
+    "46.185.161.10/32",
+    "46.185.161.15/32",
+    "46.185.161.99/32",
+    "46.185.161.129/32",
+    "46.185.161.190/32",
+    "46.185.161.251/32",
+    "46.185.162.2/32",
+    "46.185.162.10/32",
+    "46.185.162.127/32",
+    "46.185.162.150/32",
+    "46.185.162.193/32",
+    "46.185.163.128/32",
+    "46.185.163.194/32",
+    "46.185.163.252/32"
   ];
 
   function proxyLine(port){ return "SOCKS5 " + JO_PROXY_HOST + ":" + port; }
-  function blockLine(){ return "PROXY 0.0.0.0:0"; } // يقطع أي اتصال غير أردني (بدون بدائل)
-  function matchDomain(host,list){ for(var i=0;i<list.length;i++){ var pat=list[i]; if(pat.indexOf("*")>=0){ if(shExpMatch(host,pat)) return true; } else { if(dnsDomainIs(host,pat)) return true; } } return false; }
-  function matchURL(url,patterns){ for(var i=0;i<patterns.length;i++) if(shExpMatch(url,patterns[i])) return true; return false; }
+  function matchDomain(h,l){for(var i=0;i<l.length;i++){var p=l[i];if(p.indexOf("*")>=0){if(shExpMatch(h,p))return true;}else{if(dnsDomainIs(h,p))return true;}}return false;}
+  function matchURL(u,ps){for(var i=0;i<ps.length;i++){if(shExpMatch(u,ps[i]))return true;}return false;}
 
   var PUBG_DOMAINS = {
-    LOBBY: ["*.pubgmobile.com","*.pubgmobile.net","*.proximabeta.com","*.igamecj.com"],
-    MATCH: ["*.gcloud.qq.com","gpubgm.com","*.igamecj.com","*.proximabeta.com"],
-    RECRUIT_SEARCH: ["match.igamecj.com","match.proximabeta.com","teamfinder.igamecj.com","teamfinder.proximabeta.com","clan.igamecj.com"],
-    UPDATES: ["cdn.pubgmobile.com","updates.pubgmobile.com","patch.igamecj.com","hotfix.proximabeta.com","dlied1.qq.com","dlied2.qq.com"],
-    CDNs: ["cdn.igamecj.com","cdn.proximabeta.com","cdn.tencentgames.com","*.qcloudcdn.com","*.cloudfront.net","*.edgesuite.net"]
+    LOBBY:["*.pubgmobile.com","*.pubgmobile.net","*.proximabeta.com","*.igamecj.com"],
+    MATCH:["*.gcloud.qq.com","gpubgm.com","*.igamecj.com","*.proximabeta.com"],
+    RECRUIT_SEARCH:["match.igamecj.com","match.proximabeta.com","teamfinder.igamecj.com","teamfinder.proximabeta.com","clan.igamecj.com"],
+    UPDATES:["cdn.pubgmobile.com","updates.pubgmobile.com","patch.igamecj.com","hotfix.proximabeta.com","dlied1.qq.com","dlied2.qq.com"],
+    CDNs:["cdn.igamecj.com","cdn.proximabeta.com","cdn.tencentgames.com","*.qcloudcdn.com","*.cloudfront.net","*.edgesuite.net"]
   };
   var URL_PATTERNS = {
-    LOBBY: ["*/account/login*","*/client/version*","*/status/heartbeat*","*/presence/*","*/friends/*"],
-    MATCH: ["*/matchmaking/*","*/mms/*","*/game/start*","*/game/join*","*/report/battle*"],
-    RECRUIT_SEARCH: ["*/teamfinder/*","*/clan/*","*/social/*","*/search/*","*/recruit/*"],
-    UPDATES: ["*/patch*","*/update*","*/hotfix*","*/download*","*/assets/*","*/assetbundle*","*/obb*"],
-    CDNs: ["*/cdn/*","*/image/*","*/media/*","*/video/*","*/res/*","*/pkg/*"]
+    LOBBY:["*/account/login*","*/client/version*","*/status/heartbeat*","*/presence/*","*/friends/*"],
+    MATCH:["*/matchmaking/*","*/mms/*","*/game/start*","*/game/join*","*/report/battle*"],
+    RECRUIT_SEARCH:["*/teamfinder/*","*/clan/*","*/social/*","*/search/*","*/recruit/*"],
+    UPDATES:["*/patch*","*/update*","*/hotfix*","*/download*","*/assets/*","*/assetbundle*","*/obb*"],
+    CDNs:["*/cdn/*","*/image/*","*/media/*","*/video/*","*/res/*","*/pkg/*"]
   };
 
-  function ip4ToInt(ip){ var p=ip.split('.'); return ((p[0]<<24)>>>0) + (p[1]<<16) + (p[2]<<8) + (p[3]>>>0); }
-  function inCidrV4(ip,cidr){
-    var parts=cidr.split('/'); var base=parts[0]; var bits=parts.length>1?parseInt(parts[1],10):32;
-    var ipi=ip4ToInt(ip); var bi=ip4ToInt(base);
-    var mask = bits===0?0: (~((1<<(32-bits))-1))>>>0;
-    return (ipi & mask) === (bi & mask);
-  }
-  function isJordanIPv4(ip){
-    if(!ip) return false;
-    for(var i=0;i<JO_V4_PREFIXES.length;i++) if(inCidrV4(ip, JO_V4_PREFIXES[i])) return true;
-    return false;
-  }
+  function ip4ToInt(ip){var p=ip.split('.');return((p[0]<<24)>>>0)+(p[1]<<16)+(p[2]<<8)+(p[3]>>>0);}
+  function inCidrV4(ip,c){var a=c.split('/'),b=a[0],t=a.length>1?parseInt(a[1],10):32;var i=ip4ToInt(ip),bi=ip4ToInt(b);var m=t===0?0:(~((1<<(32-t))-1))>>>0;return (i&m)===(bi&m);}
+  function isJO(ip){if(!ip||ip.indexOf('.')<0)return false;for(var i=0;i<JO_V4_PREFIXES.length;i++) if(inCidrV4(ip,JO_V4_PREFIXES[i]))return true;return false;}
 
-  // Sticky cache
-  if (typeof _stickyCache === "undefined") { var _stickyCache = {}; }
-  function nowMin(){ return Math.floor((new Date()).getTime() / 60000); }
-  function stickyGet(h){ var e=_stickyCache[h]; if(!e) return null; if (nowMin()-e.t > STICKY_MINUTES) return null; return e.v; }
-  function stickyPut(h,v){ _stickyCache[h] = {t: nowMin(), v: v}; }
+  if(typeof _stickyCache==="undefined"){var _stickyCache={};}function nowMin(){return Math.floor((new Date()).getTime()/60000);}
+  function stickyGet(h){var e=_stickyCache[h];if(!e)return null;if(nowMin()-e.t>STICKY_MINUTES)return null;return e.v;}
+  function stickyPut(h,v){_stickyCache[h]={t:nowMin(),v:v};}
 
-  // Quick outs (لا نغيّرها)
-  var YT = ["youtube.com","youtu.be","googlevideo.com","ytimg.com","youtube-nocookie.com"];
-  if (matchDomain(host, YT)) return "DIRECT";
+  var YT=["youtube.com","youtu.be","googlevideo.com","ytimg.com","youtube-nocookie.com"]; if (matchDomain(host,YT)) return "DIRECT";
 
-  var cached = stickyGet(host);
-  if (cached) return cached;
+  var c=stickyGet(host); if (c) return c;
+  var ip=dnsResolve(host), jo=isJO(ip);
 
-  var destIP = dnsResolve(host);
-  var joV4 = isJordanIPv4(destIP);
+  function dec(port){ if (jo){ stickyPut(host,"DIRECT"); return "DIRECT"; } var l=proxyLine(port); stickyPut(host,l); return l; }
+  if (matchDomain(host,PUBG_DOMAINS.MATCH) || matchURL(url,URL_PATTERNS.MATCH)) return dec(20001);
+  if (matchDomain(host,PUBG_DOMAINS.RECRUIT_SEARCH) || matchURL(url,URL_PATTERNS.RECRUIT_SEARCH)) return dec(12000);
+  if (matchDomain(host,PUBG_DOMAINS.LOBBY) || matchURL(url,URL_PATTERNS.LOBBY)) return dec(10010);
 
-  function inCategory(cat){ return matchDomain(host,PUBG_DOMAINS[cat]) || matchURL(url, URL_PATTERNS[cat]); }
+  if (matchDomain(host,PUBG_DOMAINS.UPDATES) || matchURL(url,URL_PATTERNS.UPDATES)) { if (jo){ stickyPut(host,"DIRECT"); return "DIRECT"; } var u=proxyLine(8080); stickyPut(host,u); return u; }
+  if (matchDomain(host,PUBG_DOMAINS.CDNs) || matchURL(url,URL_PATTERNS.CDNs)) { if (jo){ stickyPut(host,"DIRECT"); return "DIRECT"; } var d=proxyLine(443); stickyPut(host,d); return d; }
 
-  // ——— الوضع الصارم للأردن فقط على اللوبي/التجنيد/المباريات ———
-  if (inCategory("MATCH") || inCategory("RECRUIT_SEARCH") || inCategory("LOBBY")) {
-    if (joV4) { stickyPut(host,"DIRECT"); return "DIRECT"; }     // فقط إذا الوجهة ضمن النطاقات يسمح
-    var blk = blockLine(); stickyPut(host, blk); return blk;      // غير أردني؟ اقطع الاتصال
-  }
-
-  // الباقي كما هو (نسمح للأردني DIRECT، وغير الأردني عبر بورتاته/أو بلوك للتحديثات؟ هنا إبقاء السلوك السابق)
-  if (inCategory("UPDATES")) { if (joV4) { stickyPut(host,"DIRECT"); return "DIRECT"; } var u = proxyLine(PORT_UPDATES); stickyPut(host,u); return u; }
-  if (inCategory("CDNs"))    { if (joV4) { stickyPut(host,"DIRECT"); return "DIRECT"; } var c = proxyLine(PORT_CDN);     stickyPut(host,c); return c; }
-
-  // افتراضي: إذا أردني مباشرة، غير هيك خلّيه يفشل بدل ما يطلّعك على سيرفرات خارج النطاق
-  if (joV4) { stickyPut(host,"DIRECT"); return "DIRECT"; }
-  var fb = blockLine(); stickyPut(host, fb); return fb;
+  if (jo) { stickyPut(host,"DIRECT"); return "DIRECT"; }
+  var fb=proxyLine(10010); stickyPut(host,fb); return fb;
 }
