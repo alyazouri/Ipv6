@@ -8,29 +8,29 @@ function FindProxyForURL(url, host) {
       name: "GO",
       proxyHost: "212.35.66.45", // انت حاطّه أصلاً
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
-      v4: ["212.35.64.0/19"],                  // GO / Batelco
-      v6: ["2a00:18d0::/29"]                   // GO / Batelco (IPv6)
+      v4: ["212.35.64.0/20"],                  // GO / Batelco
+      v6: ["2a00:18d0::/32"]                   // GO / Batelco (IPv6)
     },
     {
       name: "Zain",
       proxyHost: "REPLACE_ME_ZAIN",            // إذا عندك مخرج Zain (اختياري)
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
-      v4: ["176.29.0.0/17","213.139.32.0/20"], // Zain IPv4
-      v6: ["2a03:b640::/32"]                   // Zain IPv6
+      v4: ["176.29.0.0/18","213.139.32.0/21"], // Zain IPv4
+      v6: ["2a03:b640::/36"]                   // Zain IPv6
     },
     {
       name: "Umniah",
       proxyHost: "REPLACE_ME_UMNIAH",          // إذا عندك مخرج Umniah (اختياري)
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
       v4: [],                                   // (ضيف إن وجِدت)
-      v6: ["2a03:6b00::/29"]                   // Umniah IPv6
+      v6: ["2a03:6b00::/32"]                   // Umniah IPv6
     },
     {
       name: "JO-Core",
       proxyHost: "REPLACE_ME_JOCORE",          // إن حبيت خروج لجامعات/حكومة/IX
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
       v4: [],                                   // (اختياري)
-      v6: ["2001:32c0::/29"]                   // تخصيصات وطنية
+      v6: ["2001:32c0::/32"]                   // تخصيصات وطنية
     }
   ];
 
