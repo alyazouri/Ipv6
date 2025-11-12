@@ -34,7 +34,7 @@ function FindProxyForURL(url, host) {
     // --- Umniah (RES) — اختياري لو عندك مخرج ---
     {
       name: "Umniah-RES",
-      proxyHost: "REPLACE_ME_UMNIAH",
+      proxyHost: "91.106.109.12",
       ports: { GAME: 443, UPD: 8080, CDN: 443 },
       v4: [],
       v6: ["2a03:6b00::/29"],
