@@ -12,13 +12,6 @@ function FindProxyForURL(url, host) {
       v6: ["2a00:18d0::/29"]                   // GO / Batelco (IPv6)
     },
     {
-      name: "Orange",
-      proxyHost: "REPLACE_ME_ORANGE",          // إذا عندك مخرج Orange (اختياري)
-      ports: { GAME: 20001, UPD: 8080, CDN: 443 },
-      v4: ["94.249.0.0/17","212.118.0.0/19"],  // Orange IPv4
-      v6: ["2a00:18d8::/29"]                   // Orange IPv6
-    },
-    {
       name: "Zain",
       proxyHost: "REPLACE_ME_ZAIN",            // إذا عندك مخرج Zain (اختياري)
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
