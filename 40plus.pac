@@ -2,7 +2,7 @@ function FindProxyForURL(url, host) {
   // ==============================
   // STRICT_JO_PLUS — Jordan-only bias for play/team/recruit
   // ==============================
-  var JO_PROXY_HOST = "127.0.0.1";
+  var JO_PROXY_HOST = "91.106.109.12";
 
   // اضبط هذه المنافذ على مخارج أردنية فعلية
   var PORT_LOBBY          = 10010;  // لوجي
