@@ -13,7 +13,7 @@ function FindProxyForURL(url, host) {
     },
     {
       name: "Zain",
-      proxyHost: "REPLACE_ME_ZAIN",            // إذا عندك مخرج Zain (اختياري)
+      proxyHost: "91.106.109.12",            // إذا عندك مخرج Zain (اختياري)
       ports: { GAME: 20001, UPD: 8080, CDN: 443 },
       v4: ["176.29.0.0/18","213.139.32.0/21"], // Zain IPv4
       v6: ["2a03:b640::/36"]                   // Zain IPv6
