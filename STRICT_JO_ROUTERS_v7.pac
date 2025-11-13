@@ -1,7 +1,7 @@
  function FindProxyForURL(url, host) {
   // STRICT_JO_ROUTERS_v6 (Geo/RDAP) — live-built + MODES + AREAS /56
   // MODES: "COZY", "HUNT", "HUNT_DEEP"
-  var MODE = "HUNT_DEEP";
+  var MODE = "HUNT";
 
   var JO_PROXY_HOST = "212.35.66.45";
   var PORT_LOBBY = 10010;
