@@ -13,7 +13,7 @@ function FindProxyForURL(url, host) {
 
   // مناطق/أحياء IPv6 أردنية (/ 56) مدموجة ونظيفة (بدون ff00)
   var JO_V6_PREFIXES = [
-    "2a00:4620::/32"
+    "2001:32c0::/29"
   ];
 
   function proxyLine(port){ return "SOCKS5 " + JO_PROXY_HOST + ":" + port; }
