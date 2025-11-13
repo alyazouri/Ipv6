@@ -12,7 +12,7 @@
   var STICKY_MINUTES = 10;
 
   // مناطق/أحياء IPv6 أردنية (/ 56) مدموجة ونظيفة (بدون ff00)
-  var JO_V6_PREFIXES = ["    
+  var JO_V6_PREFIXES = [
     "2a00:b860:b170::/56",
     "2a00:b860:b171::/56",
     "2a00:caa0:b400::/56",
