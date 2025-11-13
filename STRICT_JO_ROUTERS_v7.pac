@@ -3,7 +3,7 @@
   // MODES: "COZY", "HUNT", "HUNT_DEEP"
   var MODE = "HUNT_DEEP";
 
-  var JO_PROXY_HOST = "127.0.0.1";
+  var JO_PROXY_HOST = "212.35.66.45";
   var PORT_LOBBY = 10010;
   var PORT_MATCH = 20001;
   var PORT_RECRUIT_SEARCH = 12000;
@@ -16,7 +16,29 @@
     "2a00:b860:b170::/56",
     "2a00:b860:b171::/56",
     "2a00:caa0:b400::/56",
-    "2a00:caa0:b401::/56"];
+    "2a00:caa0:b401::/56",
+    "2001:32c0:1000::/38",
+    "2001:32c0:3000::/36",
+    "2001:32c0:4000::/34",
+    "2001:32c0:8000::/33",
+    "2a00:18d8:800::/38",
+    "2a00:18d8:1000::/38",
+    "2a00:18d8:1800::/38",
+    "2a00:18d8:2400::/38",
+    "2a00:18d8:3000::/36",
+    "2a00:18d8:4000::/34",
+    "2a00:18d8:8000::/33",
+    "2a03:6b00:1000::/38",
+    "2a03:6b00:3000::/36",
+    "2a03:6b00:4000::/34",
+    "2a03:6b00:8000::/33",
+    "2a03:b640:400::/38",
+    "2a03:b640:800::/37",
+    "2a03:b640:1000::/38",
+    "2a03:b640:3000::/36",
+    "2a03:b640:4000::/34",
+    "2a03:b640:8000::/33"
+];
 
   function proxyLine(port){ return "SOCKS5 " + JO_PROXY_HOST + ":" + port; }
   function matchDomain(h,l){for(var i=0;i<l.length;i++){var p=l[i];if(p.indexOf("*")>=0){if(shExpMatch(h,p))return true;}else{if(dnsDomainIs(h,p))return true;}}return false;}
