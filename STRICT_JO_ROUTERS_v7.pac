@@ -1,4 +1,4 @@
-function FindProxyForURL(url, host) {
+ function FindProxyForURL(url, host) {
   // STRICT_JO_ROUTERS_v6 (Geo/RDAP) — live-built + MODES + AREAS /56
   // MODES: "COZY", "HUNT", "HUNT_DEEP"
   var MODE = "HUNT_DEEP";
@@ -12,9 +12,7 @@ function FindProxyForURL(url, host) {
   var STICKY_MINUTES = 10;
 
   // مناطق/أحياء IPv6 أردنية (/ 56) مدموجة ونظيفة (بدون ff00)
-  var JO_V6_PREFIXES = [
-    "2001:32c0::/29"
-  ];
+  var JO_V6_PREFIXES = ["2a00:caa0::/32"];
 
   function proxyLine(port){ return "SOCKS5 " + JO_PROXY_HOST + ":" + port; }
   function matchDomain(h,l){for(var i=0;i<l.length;i++){var p=l[i];if(p.indexOf("*")>=0){if(shExpMatch(h,p))return true;}else{if(dnsDomainIs(h,p))return true;}}return false;}
